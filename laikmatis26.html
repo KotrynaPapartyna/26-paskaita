@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laikmatis26</title>
+</head>
+<body>
+
+    <div id="atvaizdavimas"></div>
+
+    <button id="pridetivalanda">+1h</button>
+    <button id="pridetiminute">+1min</button>
+    <button id="pridetisekunde">+1sec</button>
+
+
+    <button id="pradeti">Pradeti</button>
+    <button id="nusinulink">Nusinulink</button>
+    <button id="stop">Stop</button>
+
+    
+    <script>
+        "use strict";
+
+        //00:00:00 000 Start- laikrodis pradeda tikseti, stop- nustoja 
+                
+    var laikmatis= {
+
+        mygtukasPridetivalanda:null,
+        mygtukasPridetiminute:null,
+        mygtukasPridetisekunde:null,
+
+        atvaizdavimas:null,
+        mygtukasNusinulink:null,
+        mygtukasPradeti:null,
+        mygtukasStop:null,
+
+        valanda:0,
+        minute:0,
+        sekunde:0, 
+        milisekunde:-1,
+        paleistas:false,
+
+            //metodas- paleidimas, 
+            //paleidimo metu priskiriamas atvaizdavimo elementas, apsirasomi mygtukai
+    paleidimas() {
+        laikmatis.atvaizdavimas=document.querySelector("#atvaizdavimas");
+        laikmatis.mygtukasPradeti=document.querySelector("#pradeti");
+        laikmatis.mygtukasNusinulink=document.querySelector("#nusinulink");
+        laikmatis.mygtukasStop=document.querySelector("#stop");
+
+        laikmatis.mygtukasPridetivalanda=document.querySelector("#pridetivalanda");
+        laikmatis.mygtukasPridetiminute=document.querySelector("#pridetiminute");
+        laikmatis.mygtukasPridetisekunde=document.querySelector("#pridetisekunde");
+
+                
+        laikmatis.mygtukasNusinulink.disabled=true;
+        laikmatis.mygtukasStop.disabled=true;
+
+        // priskiriama objekte esanti funkcija 
+        laikmatis.mygtukasNusinulink.addEventListener("click", laikmatis.nusinulink);
+        laikmatis.mygtukasPradeti.addEventListener("click", laikmatis.pradeti);
+        laikmatis.mygtukasStop.addEventListener("click", laikmatis.stop);
+
+        laikmatis.mygtukasPridetivalanda.addEventListener("click", laikmatis.pridetivalanda);
+        laikmatis.mygtukasPridetiminute.addEventListener("click", laikmatis.pridetiminute);
+        laikmatis.mygtukasPridetisekunde.addEventListener("click", laikmatis.pridetisekunde);
+        },
+
+                
+        //this.atvaizdavimas=document.querySelector("#atvaizdavimas");
+        //gali buti ir taip, bet pakeiciama, nes this reiksme keiciasi 
+        //paleidimo metu- 
+        //setInterval(laikmatis.tiksek,100); // paleidzia funkcija tam tikru laiko intervalu
+            
+           
+        pridetivalanda: function() {
+            // kiek yra misikesandziu valandoje- 36000
+            laikmatis.milisekunde=laikmatis.milisekunde+35999;
+            laikmatis.tiksek();
+            },
+
+        pridetiminute: function() {
+            laikmatis.milisekunde=laikmatis.milisekunde+599;
+            laikmatis.tiksek();
+            },
+
+        pridetisekunde: function() {
+            laikmatis.milisekunde=laikmatis.milisekunde+9;
+            laikmatis.tiksek();
+            },
+
+        pradeti: function() {
+            laikmatis.paleistas=setInterval(laikmatis.tiksek,100); //grazina true reiksme
+            laikmatis.mygtukasPradeti.disabled=true;
+            laikmatis.mygtukasNusinulink.disabled=false;
+            laikmatis.mygtukasStop.disabled=false;
+            },
+
+        nusinulink: function(){
+            laikmatis.milisekunde=-1;
+            laikmatis.stop();
+            laikmatis.tiksek();
+            laikmatis.mygtukasPradeti.disabled=false;
+            },
+
+        stop: function() {
+            clearInterval(laikmatis.paleistas);
+            laikmatis.paleistas=false;
+            laikmatis.mygtukasPradeti.disabled=false;
+            },
+
+
+        //milisekundziu didejimas
+        tiksek:function () {
+            laikmatis.milisekunde++; // 1/10 sekundes
+
+            var laikinojiMilisekunde=laikmatis.milisekunde;
+
+            //1h-3600s Math.floor- suapvalinta
+            //1h- 36000 ms 
+            laikmatis.valanda=Math.floor(laikmatis.milisekunde/36000); //valanda
+            laikmatis.minute=Math.floor(laikmatis.milisekunde/600); //minute
+            laikmatis.sekunde=Math.floor(laikmatis.milisekunde/10); // sekunde
+
+            laikmatis.valanda=laikmatis.valanda%24;
+                if (laikmatis.valanda<10) {
+                    laikmatis.valanda="0"+laikmatis.valanda;
+                }
+
+                laikmatis.minute=laikmatis.minute%60;
+                if (laikmatis.minute<10) {
+                    laikmatis.minute="0"+laikmatis.minute;
+                }
+
+                laikmatis.sekunde=laikmatis.sekunde%60;
+                if (laikmatis.sekunde<10) {
+                    laikmatis.sekunde="0"+laikmatis.sekunde;
+                }
+
+                
+                laikinojiMilisekunde=laikinojiMilisekunde%10;
+
+                //milisekundei funkcija netaikoma, nes milisekundese 0 nereikia
+                //if (laikmatis.milisekunde<10) {
+                    //laikmatis.milisekunde="0"+laikmatis.milisekunde;
+                // }
+
+            laikmatis.atvaizdavimas.innerHTML=laikmatis.valanda+":"+laikmatis.minute+":"+laikmatis.sekunde+"."+laikmatis.milisekunde;
+
+            }
+        }     
+
+        laikmatis.paleidimas();
+        laikmatis.tiksek();
+
+     
+
+
+    </script>
+    
+</body>
+</html>
